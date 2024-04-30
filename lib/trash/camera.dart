@@ -134,7 +134,7 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         alignment: Alignment.center,
         children: [
-     FutureBuilder<void>(
+ FutureBuilder<void>(
   future: cameraValue,
   builder: (context, snapshot) {
     if (snapshot.connectionState == ConnectionState.done) {
@@ -151,9 +151,8 @@ class _MainPageState extends State<MainPage> {
             height: size.height * 0.9,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(30.r),
-              child: OverflowBox(
-                maxWidth: double.infinity,
-                maxHeight: double.infinity,
+              child: AspectRatio(
+                aspectRatio: cameraController.value.aspectRatio,
                 child: CameraPreview(cameraController),
               ),
             ),
@@ -167,7 +166,7 @@ class _MainPageState extends State<MainPage> {
     }
   },
 ),
-  SafeArea(
+ SafeArea(
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
