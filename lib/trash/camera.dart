@@ -1,14 +1,19 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:external_path/external_path.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:media_scanner/media_scanner.dart';
 import 'package:web_app_ai/trash/second_camera_screen.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final cameras = await availableCameras();
+  runApp(MyApp(cameras: cameras));
+}
 
 class MyApp extends StatelessWidget {
   final List<CameraDescription> cameras;
@@ -31,11 +36,9 @@ class MyApp extends StatelessWidget {
   }
 }
 
-
-
 class MainPage extends StatefulWidget {
   final List<CameraDescription> cameras;
-  const MainPage({super.key, required this.cameras});
+  const MainPage({Key? key, required this.cameras}) : super(key: key);
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -44,11 +47,11 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   late CameraController cameraController;
   late Future<void> cameraValue;
-  List<File> imagesList = [];
+  List<XFile> imagesList = [];
   bool isFlashOn = false;
   bool isRearCamera = true;
 
-  Future<File> saveImage(XFile image) async {
+  Future<void> saveImage(XFile image) async {
     final downlaodPath = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_DOWNLOADS);
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
@@ -58,10 +61,13 @@ class _MainPageState extends State<MainPage> {
       await file.writeAsBytes(await image.readAsBytes());
     } catch (_) {}
 
-    return file;
+    MediaScanner.loadMedia(path: file.path);
+    setState(() {
+      imagesList.add(file as XFile);
+    });
   }
 
-  void takePicture() async {
+  Future<void> takePicture() async {
     XFile? image;
 
     if (cameraController.value.isTakingPicture ||
@@ -75,11 +81,12 @@ class _MainPageState extends State<MainPage> {
       await cameraController.setFlashMode(FlashMode.torch);
     }
     image = await cameraController.takePicture();
-     final cameras = await availableCameras();
-      Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) =>  second_camera_screen(cameras: cameras,)),
-  );
+
+    final cameras = await availableCameras();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => second_camera_screen(cameras: cameras)),
+    );
 
     if (cameraController.value.flashMode == FlashMode.torch) {
       setState(() {
@@ -87,16 +94,12 @@ class _MainPageState extends State<MainPage> {
       });
     }
 
-    final file = await saveImage(image);
-    setState(() {
-      imagesList.add(file);
-    });
-    MediaScanner.loadMedia(path: file.path);
+    await saveImage(image);
   }
 
-  void startCamera(int camera) {
+  void startCamera(int cameraIndex) {
     cameraController = CameraController(
-      widget.cameras[0],
+      widget.cameras[cameraIndex],
       ResolutionPreset.high,
       enableAudio: false,
     );
@@ -121,26 +124,26 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       backgroundColor: Colors.black87,
       floatingActionButton: SizedBox(
-    height: 70.h,
-    width: 70.w,
-    child: FittedBox(
-      child: FloatingActionButton(
-        backgroundColor: const Color.fromRGBO(255, 255, 255, .7),
-        child: Container(),
-        onPressed: takePicture,
+        height: 70.h,
+        width: 70.w,
+        child: FittedBox(
+          child: FloatingActionButton(
+            backgroundColor: const Color.fromRGBO(255, 255, 255, .7),
+            child: Container(),
+            onPressed: takePicture,
+          ),
+        ),
       ),
-    ),
-  ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Stack(
         alignment: Alignment.center,
         children: [
-          FutureBuilder(
+          FutureBuilder<void>(
             future: cameraValue,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 return Container(
-                 width: size.width * 0.83,
+                  width: size.width * 0.83,
                   height: size.height * 0.9,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50.0),
@@ -148,12 +151,13 @@ class _MainPageState extends State<MainPage> {
                   child: FittedBox(
                     fit: BoxFit.cover,
                     child: Padding(
-                      padding:  EdgeInsets.symmetric(vertical: 40.r ),
+                      padding: EdgeInsets.symmetric(vertical: 40.r),
                       child: SizedBox(
                         width: size.width * 0.83,
-                        child:ClipRRect(
-                            borderRadius: BorderRadius.circular(30.r),
-                            child: CameraPreview(cameraController)),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(30.r),
+                          child: CameraPreview(cameraController),
+                        ),
                       ),
                     ),
                   ),
@@ -180,10 +184,10 @@ class _MainPageState extends State<MainPage> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
-                        child:  Container(
-                            width: 40.w,
-                            height: 40.h,
-                          )
+                        child: Container(
+                          width: 40.w,
+                          height: 40.h,
+                        ),
                       ),
                     ),
                     const Gap(10),
@@ -196,66 +200,69 @@ class _MainPageState extends State<MainPage> {
                       },
                       child: Container(
                         child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child:    Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            50.r), // Adjust the value as needed
-                        child: Image.network(
-                          "https://scan.avaturn.me/assets/scan/final_front.png",
-                          width: 100.w,
-                          height: 100.h,
+                          padding: const EdgeInsets.all(10),
+                          child: Stack(
+                            alignment: Alignment.topCenter,
+                            children: [
+                              ClipRRect(
+                                borderRadius:
+                                    BorderRadius.circular(50.r), // Adjust the value as needed
+                                child: Image.network(
+                                  "https://scan.avaturn.me/assets/scan/final_front.png",
+                                  width: 100.w,
+                                  height: 100.h,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 50.r),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.amber,
+                                  radius: 15,
+                                  child: Icon(
+                                    Icons.warning_amber,
+                                    color: Colors.white,
+                                    size: 15.h,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Padding(
-                          padding: EdgeInsets.only(left: 50.r),
-                          child: CircleAvatar(
-                            backgroundColor: Colors.amber,
-                            radius: 15,
-                            child: Icon(
-                            Icons.warning_amber,
-                            color: Colors.white,
-                            size: 15.h,
-                          ),
-                          )),
-                    ],
-                  )
-                ),
                     )
-                )],
+                  ],
                 ),
               ),
             ),
           ),
-         Padding(
-           padding: EdgeInsets.only(top: 45.r),
-           child:  Align(
-               alignment: Alignment.topCenter,
-               child: Row(
+          Padding(
+            padding: EdgeInsets.only(top: 45.r),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                 children: [
-                   CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            radius: 15,
-                            child: Icon(
-                            Icons.warning_amber,
-                            color: Colors.amber,
-                            size: 15.h,
-                          ),
-                          ),
-                          SizedBox(width: 2.w,),
-                   const Text(
-                     'Look Right to the Camera',
-                     style: TextStyle(
-                         color: Colors.amber,
-                         fontSize: 16,
-                         fontWeight: FontWeight.bold),
-                   ),
-                 ],
-               )),
-         ),
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 15,
+                    child: Icon(
+                      Icons.warning_amber,
+                      color: Colors.amber,
+                      size: 15.h,
+                    ),
+                  ),
+                  SizedBox(width: 2.w,),
+                  const Text(
+                    'Look Right to the Camera',
+                    style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
