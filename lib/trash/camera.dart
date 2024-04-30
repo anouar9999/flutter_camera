@@ -150,7 +150,7 @@ class _MainPageState extends State<MainPage> {
                     child: Padding(
                       padding:  EdgeInsets.symmetric(vertical: 40.r ),
                       child: SizedBox(
-                        width: 100.w,
+                        width: size.width * 0.83,
                         child:ClipRRect(
                             borderRadius: BorderRadius.circular(30.r),
                             child: CameraPreview(cameraController)),
