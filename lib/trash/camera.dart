@@ -9,11 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:media_scanner/media_scanner.dart';
 import 'package:web_app_ai/trash/second_camera_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  runApp(MyApp(cameras: cameras));
-}
+
 
 class MyApp extends StatelessWidget {
   final List<CameraDescription> cameras;
