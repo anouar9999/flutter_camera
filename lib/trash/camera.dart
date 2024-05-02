@@ -9,8 +9,6 @@ import 'package:gap/gap.dart';
 import 'package:media_scanner/media_scanner.dart';
 import 'package:web_app_ai/trash/second_camera_screen.dart';
 
-
-
 class MyApp extends StatelessWidget {
   final List<CameraDescription> cameras;
 
@@ -81,7 +79,8 @@ class _MainPageState extends State<MainPage> {
     final cameras = await availableCameras();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => second_camera_screen(cameras: cameras)),
+      MaterialPageRoute(
+          builder: (context) => second_camera_screen(cameras: cameras)),
     );
 
     if (cameraController.value.flashMode == FlashMode.torch) {
@@ -134,39 +133,43 @@ class _MainPageState extends State<MainPage> {
       body: Stack(
         alignment: Alignment.center,
         children: [
- FutureBuilder<void>(
-  future: cameraValue,
-  builder: (context, snapshot) {
-    if (snapshot.connectionState == ConnectionState.done) {
-      return Container(
-        width: size.width * 0.83,
-        height: size.height * 0.9,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(50.0),
-        ),
-        child: FittedBox(
-          fit: BoxFit.cover,
-          child: Container(
-            width: size.width * 0.83,
-            height: size.height * 0.9,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30.r),
-              child: AspectRatio(
-                aspectRatio: cameraController.value.aspectRatio,
-                child: CameraPreview(cameraController),
-              ),
-            ),
+          FutureBuilder<void>(
+            future: cameraValue,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                return Container(
+                  width: size.width * 0.83,
+                  height: size.height * 0.9,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50.0),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: Container(
+                      width: size.width * 0.83,
+                      height: size.height * 0.9,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30.r),
+                        child: AspectRatio(
+                          aspectRatio: cameraController.value.aspectRatio,
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: double.infinity,
+                            child: CameraPreview(cameraController),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
           ),
-        ),
-      );
-    } else {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-  },
-),
- SafeArea(
+          SafeArea(
             child: Align(
               alignment: Alignment.topRight,
               child: Padding(
@@ -202,8 +205,8 @@ class _MainPageState extends State<MainPage> {
                             alignment: Alignment.topCenter,
                             children: [
                               ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(50.r), // Adjust the value as needed
+                                borderRadius: BorderRadius.circular(
+                                    50.r), // Adjust the value as needed
                                 child: Image.network(
                                   "https://scan.avaturn.me/assets/scan/final_front.png",
                                   width: 100.w,
@@ -248,7 +251,9 @@ class _MainPageState extends State<MainPage> {
                       size: 15.h,
                     ),
                   ),
-                  SizedBox(width: 2.w,),
+                  SizedBox(
+                    width: 2.w,
+                  ),
                   const Text(
                     'Look Right to the Camera',
                     style: TextStyle(
