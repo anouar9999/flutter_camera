@@ -151,7 +151,7 @@ class _MainPageState extends State<MainPage> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30.r),
                         child: AspectRatio(
-                          aspectRatio: 3 / 4, 
+                          aspectRatio: 3 / 4, // Adjust the aspect ratio
                           child: SizedBox(
                             width: double.infinity,
                             height: double.infinity,
