@@ -151,7 +151,7 @@ class _MainPageState extends State<MainPage> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(30.r),
                         child: AspectRatio(
-                          aspectRatio: cameraController.value.aspectRatio,
+                          aspectRatio: 3 / 4, 
                           child: SizedBox(
                             width: double.infinity,
                             height: double.infinity,
