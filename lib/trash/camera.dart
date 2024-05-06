@@ -141,8 +141,8 @@ class _MainPageState extends State<MainPage> {
                 return SizedBox(
                   width: size.width,
                   height: size.width / cameraController.value.aspectRatio,
-                  child: Container()
-                  // CameraPreview(cameraController),
+                  child:
+                  CameraPreview(cameraController),
                 );
               } else {
                 return const Center(
