@@ -31,6 +31,7 @@ class MyApp extends StatelessWidget {
 }
 
 
+
 class MainPage extends StatefulWidget {
   final List<CameraDescription> cameras;
   const MainPage({Key? key, required this.cameras}) : super(key: key);
@@ -129,140 +130,123 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Stack(
-            alignment: Alignment.center,
-            children: [
-              FutureBuilder<void>(
-                future: cameraValue,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done) {
-                    final size = Size(constraints.maxWidth, constraints.maxHeight);
-                    return SizedBox(
-                      width: size.width,
-                      height: size.height,
-                      child: ClipRect(
-                        child: OverflowBox(
-                          alignment: Alignment.center,
-                          child: FittedBox(
-                            fit: BoxFit.fitWidth,
-                            child: SizedBox(
-                              width: size.width,
-                              height: size.width / cameraController.value.aspectRatio,
-                              child: CameraPreview(cameraController),
-                            ),
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          FutureBuilder<void>(
+            future: cameraValue,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                final size = MediaQuery.of(context).size;
+                return SizedBox(
+                  width: size.width,
+                  height: size.width / cameraController.value.aspectRatio,
+                  child: CameraPreview(cameraController),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 5, top: 10),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromARGB(50, 0, 0, 0),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Container(
+                          width: 40.w,
+                          height: 40.h,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isRearCamera = !isRearCamera;
+                        });
+                        isRearCamera ? startCamera(0) : startCamera(1);
+                      },
+                      child: Container(
+                        child: Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Stack(
+                            alignment: Alignment.topCenter,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(
+                                    50.r), // Adjust the value as needed
+                                child: Image.network(
+                                  "https://scan.avaturn.me/assets/scan/final_front.png",
+                                  width: 100.w,
+                                  height: 100.h,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 50.r),
+                                child: CircleAvatar(
+                                  backgroundColor: Colors.amber,
+                                  radius: 15,
+                                  child: Icon(
+                                    Icons.warning_amber,
+                                    color: Colors.white,
+                                    size: 15.h,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                    );
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
+                    )
+                  ],
+                ),
               ),
-              SafeArea(
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 5, top: 10),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                            color: Color.fromARGB(50, 0, 0, 0),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Container(
-                              width: 40.w,
-                              height: 40.h,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isRearCamera = !isRearCamera;
-                            });
-                            isRearCamera ? startCamera(0) : startCamera(1);
-                          },
-                          child: Container(
-                            child: Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Stack(
-                                alignment: Alignment.topCenter,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(
-                                        50.r), // Adjust the value as needed
-                                    child: Image.network(
-                                      "https://scan.avaturn.me/assets/scan/final_front.png",
-                                      width: 100.w,
-                                      height: 100.h,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 50.r),
-                                    child: CircleAvatar(
-                                      backgroundColor: Colors.amber,
-                                      radius: 15,
-                                      child: Icon(
-                                        Icons.warning_amber,
-                                        color: Colors.white,
-                                        size: 15.h,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 45.r),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 15,
+                    child: Icon(
+                      Icons.warning_amber,
+                      color: Colors.amber,
+                      size: 15.h,
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 45.r),
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.transparent,
-                        radius: 15,
-                        child: Icon(
-                          Icons.warning_amber,
-                          color: Colors.amber,
-                          size: 15.h,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      const Text(
-                        'Look Right to the Camera',
-                        style: TextStyle(
-                            color: Colors.amber,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  const SizedBox(width: 2),
+                  const Text(
+                    'Look Right to the Camera',
+                    style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold),
                   ),
-                ),
+                ],
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
 
