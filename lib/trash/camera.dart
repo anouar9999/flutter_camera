@@ -43,6 +43,7 @@ class _MainPageState extends State<MainPage> {
   late CameraController cameraController;
   late Future<void> cameraValue;
   List<XFile> imagesList = [];
+  bool isFlashOn = false;
   bool isRearCamera = true;
 
   Future<void> saveImage(XFile image) async {
@@ -68,6 +69,11 @@ class _MainPageState extends State<MainPage> {
       return;
     }
 
+    if (isFlashOn == false) {
+      await cameraController.setFlashMode(FlashMode.off);
+    } else {
+      await cameraController.setFlashMode(FlashMode.torch);
+    }
     image = await cameraController.takePicture();
 
     final cameras = await availableCameras();
@@ -76,6 +82,12 @@ class _MainPageState extends State<MainPage> {
       MaterialPageRoute(
           builder: (context) => second_camera_screen(cameras: cameras)),
     );
+
+    if (cameraController.value.flashMode == FlashMode.torch) {
+      setState(() {
+        cameraController.setFlashMode(FlashMode.off);
+      });
+    }
 
     await saveImage(image);
   }
@@ -252,4 +264,5 @@ class _MainPageState extends State<MainPage> {
     );
   }
 }
+
 
