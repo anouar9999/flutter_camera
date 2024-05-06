@@ -145,18 +145,14 @@ class _MainPageState extends State<MainPage> {
                   ),
                   child: FittedBox(
                     fit: BoxFit.cover,
-                    child: Container(
-                      width: size.width * 0.83,
-                      height: size.height * 0.9,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(30.r),
-                        child: AspectRatio(
-                          aspectRatio: 3 / 4, // Adjust the aspect ratio
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: double.infinity,
-                            child: CameraPreview(cameraController),
-                          ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30.r),
+                      child: AspectRatio(
+                        aspectRatio: 3 / 4, // Adjust the aspect ratio
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: double.infinity,
+                          child: CameraPreview(cameraController),
                         ),
                       ),
                     ),
