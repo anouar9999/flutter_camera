@@ -138,11 +138,14 @@ class _MainPageState extends State<MainPage> {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 final size = MediaQuery.of(context).size;
-                return SizedBox(
-                  width: size.width,
-                  height: size.width / cameraController.value.aspectRatio,
-                  child:
-                  CameraPreview(cameraController),
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(30.r),
+                  child: SizedBox(
+                    width: size.width*0.83,
+                    height: size.width *0.9,
+                    child:
+                    CameraPreview(cameraController),
+                  ),
                 );
               } else {
                 return const Center(
@@ -235,7 +238,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   const SizedBox(width: 2),
                   const Text(
-                    'Look Right to the Camera.....please',
+                    'Look Right to the Camera.....',
                     style: TextStyle(
                         color: Colors.amber,
                         fontSize: 16,
