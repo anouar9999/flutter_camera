@@ -234,7 +234,7 @@ class _MainPageState extends State<MainPage> {
                   ),
                   const SizedBox(width: 2),
                   const Text(
-                    'Look Right to the Camera',
+                    'Look Right to the Camera.....',
                     style: TextStyle(
                         color: Colors.amber,
                         fontSize: 16,
