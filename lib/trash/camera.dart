@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+
 class MainPage extends StatefulWidget {
   final List<CameraDescription> cameras;
   const MainPage({Key? key, required this.cameras}) : super(key: key);
@@ -42,20 +43,18 @@ class _MainPageState extends State<MainPage> {
   late CameraController cameraController;
   late Future<void> cameraValue;
   List<XFile> imagesList = [];
-  bool isFlashOn = false;
   bool isRearCamera = true;
 
   Future<void> saveImage(XFile image) async {
-    final downlaodPath = await ExternalPath.getExternalStoragePublicDirectory(
+    final downloadPath = await ExternalPath.getExternalStoragePublicDirectory(
         ExternalPath.DIRECTORY_DOWNLOADS);
     final fileName = '${DateTime.now().millisecondsSinceEpoch}.png';
-    final file = File('$downlaodPath/$fileName');
+    final file = File('$downloadPath/$fileName');
 
     try {
       await file.writeAsBytes(await image.readAsBytes());
     } catch (_) {}
 
-    MediaScanner.loadMedia(path: file.path);
     setState(() {
       imagesList.add(file as XFile);
     });
@@ -69,11 +68,6 @@ class _MainPageState extends State<MainPage> {
       return;
     }
 
-    if (isFlashOn == false) {
-      await cameraController.setFlashMode(FlashMode.off);
-    } else {
-      await cameraController.setFlashMode(FlashMode.torch);
-    }
     image = await cameraController.takePicture();
 
     final cameras = await availableCameras();
@@ -82,12 +76,6 @@ class _MainPageState extends State<MainPage> {
       MaterialPageRoute(
           builder: (context) => second_camera_screen(cameras: cameras)),
     );
-
-    if (cameraController.value.flashMode == FlashMode.torch) {
-      setState(() {
-        cameraController.setFlashMode(FlashMode.off);
-      });
-    }
 
     await saveImage(image);
   }
@@ -103,8 +91,8 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    startCamera(0);
     super.initState();
+    startCamera(0);
   }
 
   @override
@@ -115,7 +103,6 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Colors.black87,
       floatingActionButton: SizedBox(
@@ -130,139 +117,139 @@ class _MainPageState extends State<MainPage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      body: Stack(
-        alignment: Alignment.center,
-        children: [
-          FutureBuilder<void>(
-            future: cameraValue,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                return Container(
-                  width: size.width * 0.83,
-                  height: size.height * 0.9,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50.0),
-                  ),
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(30.r),
-                      child: AspectRatio(
-                        aspectRatio: 3 / 4, // Adjust the aspect ratio
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: double.infinity,
-                          child: CameraPreview(cameraController),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 5, top: 10),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: Color.fromARGB(50, 0, 0, 0),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Container(
-                          width: 40.w,
-                          height: 40.h,
-                        ),
-                      ),
-                    ),
-                    const Gap(10),
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isRearCamera = !isRearCamera;
-                        });
-                        isRearCamera ? startCamera(0) : startCamera(1);
-                      },
-                      child: Container(
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: Stack(
-                            alignment: Alignment.topCenter,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(
-                                    50.r), // Adjust the value as needed
-                                child: Image.network(
-                                  "https://scan.avaturn.me/assets/scan/final_front.png",
-                                  width: 100.w,
-                                  height: 100.h,
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 50.r),
-                                child: CircleAvatar(
-                                  backgroundColor: Colors.amber,
-                                  radius: 15,
-                                  child: Icon(
-                                    Icons.warning_amber,
-                                    color: Colors.white,
-                                    size: 15.h,
-                                  ),
-                                ),
-                              ),
-                            ],
+      body: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              FutureBuilder<void>(
+                future: cameraValue,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    final size = Size(constraints.maxWidth, constraints.maxHeight);
+                    return SizedBox(
+                      width: size.width,
+                      height: size.height,
+                      child: ClipRect(
+                        child: OverflowBox(
+                          alignment: Alignment.center,
+                          child: FittedBox(
+                            fit: BoxFit.fitWidth,
+                            child: SizedBox(
+                              width: size.width,
+                              height: size.width / cameraController.value.aspectRatio,
+                              child: CameraPreview(cameraController),
+                            ),
                           ),
                         ),
                       ),
-                    )
-                  ],
-                ),
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
               ),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 45.r),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    radius: 15,
-                    child: Icon(
-                      Icons.warning_amber,
-                      color: Colors.amber,
-                      size: 15.h,
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 5, top: 10),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Color.fromARGB(50, 0, 0, 0),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Container(
+                              width: 40.w,
+                              height: 40.h,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isRearCamera = !isRearCamera;
+                            });
+                            isRearCamera ? startCamera(0) : startCamera(1);
+                          },
+                          child: Container(
+                            child: Padding(
+                              padding: const EdgeInsets.all(10),
+                              child: Stack(
+                                alignment: Alignment.topCenter,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                        50.r), // Adjust the value as needed
+                                    child: Image.network(
+                                      "https://scan.avaturn.me/assets/scan/final_front.png",
+                                      width: 100.w,
+                                      height: 100.h,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 50.r),
+                                    child: CircleAvatar(
+                                      backgroundColor: Colors.amber,
+                                      radius: 15,
+                                      child: Icon(
+                                        Icons.warning_amber,
+                                        color: Colors.white,
+                                        size: 15.h,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  SizedBox(
-                    width: 2.w,
-                  ),
-                  const Text(
-                    'Look Right to the Camera',
-                    style: TextStyle(
-                        color: Colors.amber,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-        ],
+              Padding(
+                padding: EdgeInsets.only(top: 45.r),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.transparent,
+                        radius: 15,
+                        child: Icon(
+                          Icons.warning_amber,
+                          color: Colors.amber,
+                          size: 15.h,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      const Text(
+                        'Look Right to the Camera',
+                        style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
+
