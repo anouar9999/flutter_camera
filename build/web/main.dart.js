@@ -57346,7 +57346,7 @@ p===$&&A.d()
 r=A.hI(30*Math.min(q.a.a/p.a,r.gbE()))
 p=this.a.d
 p===$&&A.d()
-return A.pT(r,A.jO(new A.mt(p,null),s.b*0.9,s.a*0.83))}else return B.ef},
+return A.pT(r,A.jO(new A.mt(p,null),s.b*0.83,s.a*0.83))}else return B.ef},
 $S:357}
 A.a_D.prototype={
 $0(){var s=this.a

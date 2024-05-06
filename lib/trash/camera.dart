@@ -142,7 +142,7 @@ class _MainPageState extends State<MainPage> {
                   borderRadius: BorderRadius.circular(30.r),
                   child: SizedBox(
                     width: size.width*0.83,
-                    height: size.height *0.9,
+                    height: size.height *0.83,
                     child:
                     CameraPreview(cameraController),
                   ),
